@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/server",
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
+    "watch-node": "NODE_ENV=DEV nodemon build/app/server",
+    "watch-ts": "npx tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.3",
+    "concurrently": "^5.1.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2",
+    "typescript": "^3.8.3"
+  }
+}
