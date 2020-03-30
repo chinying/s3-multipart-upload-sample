@@ -29,7 +29,10 @@ const presignedUrlHandler = async (_req: Request, res: Response) => {
 
     // @ts-ignore
     const uploadedData = await createMultipartUpload(params)
-    res.status(200).json({ uploadedData })
+    res.status(200).json({
+      s3Key: uploadedData.Key,
+      uploadId: uploadedData.UploadId
+    })
 
   } catch (err) {
     console.log(err)
