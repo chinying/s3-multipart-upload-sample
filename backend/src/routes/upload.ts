@@ -18,13 +18,13 @@ const completeMultipartUpload = promisify(s3.completeMultipartUpload.bind(s3))
 const uploadPart = promisify(s3.getSignedUrl.bind(s3))
 
 // here be handlers
-const presignedUrlHandler = async (_req: Request, res: Response) => {
+const presignedUrlHandler = async (req: Request, res: Response) => {
   try {
     const s3Key = uuid()
     const params = {
       Bucket: FILE_STORAGE_BUCKET_NAME,
       Key: s3Key,
-      ContentType: 'text/csv'
+      ContentType: req.query.mimeType
     }
 
     // @ts-ignore
