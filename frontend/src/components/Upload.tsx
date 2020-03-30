@@ -24,9 +24,9 @@ export default class Upload extends React.Component<Props, State> {
     }
   }
 
-  private async obtainUploadId(): Promise<StartUploadResponse> {
+  private async obtainUploadId(mimeType: string): Promise<StartUploadResponse> {
     try {
-      const resp = await axios.get('http://localhost:4000/upload/start')
+      const resp = await axios.get(encodeURI(`http://localhost:4000/upload/start?mimeType=${mimeType}`))
       return resp.data
     } catch (err) {
       throw err
@@ -38,10 +38,9 @@ export default class Upload extends React.Component<Props, State> {
       const file = event.currentTarget?.files?.[0]
       console.log(file)
       if (file === undefined) return
-      console.log(file.type)
       this.setState({ selectedFile: file })
 
-      const startUploadResponse = await this.obtainUploadId()
+      const startUploadResponse = await this.obtainUploadId(file.type)
       this.setState({
         s3Key: startUploadResponse.s3Key,
         uploadId: startUploadResponse.uploadId
