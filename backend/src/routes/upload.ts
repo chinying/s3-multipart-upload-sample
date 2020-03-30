@@ -14,6 +14,7 @@ const s3 = new S3({
 })
 
 const createMultipartUpload = promisify(s3.createMultipartUpload.bind(s3))
+const uploadPart = promisify(s3.getSignedUrl.bind(s3))
 
 // here be handlers
 const presignedUrlHandler = async (_req: Request, res: Response) => {
@@ -35,6 +36,26 @@ const presignedUrlHandler = async (_req: Request, res: Response) => {
   }
 }
 
+const getMultipartUrlHandler = async (req: Request, res: Response) => {
+  try {
+    const { uploadId, s3Key, partNumber }: {uploadId: string, s3Key: string, partNumber: number } = req.query
+    const params = {
+      Bucket: FILE_STORAGE_BUCKET_NAME,
+      Key: s3Key,
+      PartNumber: partNumber,
+      UploadId: uploadId
+    }
+
+    // @ts-ignore
+    const presignedUrl = await uploadPart('uploadPart', params)
+    res.status(200).json({ presignedUrl })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Unable to generate multipart url.' })
+  }
+}
+
 router.get('/start', presignedUrlHandler)
+router.get('/get-multipart-url', getMultipartUrlHandler)
 
 export const UploadRoutes = router
