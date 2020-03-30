@@ -50,6 +50,19 @@ export default class Upload extends React.Component<Props, State> {
     }
   }
 
+  async uploadHandler(event: React.MouseEvent) {
+    event.preventDefault()
+    try {
+      await this.upload()
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  private async upload() {
+    // TODO
+  }
+
   render () {
     return (
       <div>
@@ -59,6 +72,13 @@ export default class Upload extends React.Component<Props, State> {
             type="file"
             onChange={this.fileChangeHandler.bind(this)}
           />
+
+          <button
+            type="submit"
+            onClick={this.uploadHandler}
+          >
+            Upload
+          </button>
         </form>
       </div>
     )
