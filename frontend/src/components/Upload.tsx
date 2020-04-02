@@ -95,8 +95,6 @@ export default class Upload extends React.Component<Props, State> {
       const NUM_CHUNKS = Math.floor(fileSize / FILE_CHUNK_SIZE) + 1
       const chunks = new Array(NUM_CHUNKS)
 
-      let finalPresignedUrl: string = ''
-
       const uploadPartsArray = await Bluebird.map(
         chunks,
         async (_, index: number) => {
@@ -110,8 +108,6 @@ export default class Upload extends React.Component<Props, State> {
             uploadId: this.state.uploadId!,
             partNumber: index + 1
           })
-
-          finalPresignedUrl = presignedUrlResp.presignedUrl
 
           // upload to s3
           const uploadResponse = await axios.put(
@@ -132,9 +128,7 @@ export default class Upload extends React.Component<Props, State> {
         params: {
           s3Key: this.state.s3Key,
           parts: uploadPartsArray,
-          uploadId: this.state.uploadId,
-          presigned_url: finalPresignedUrl,
-          mime_type: file.type
+          uploadId: this.state.uploadId
         }
       })
       console.log(completeUploadResp.data)
