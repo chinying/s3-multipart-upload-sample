@@ -1,7 +1,9 @@
 import { promisify } from 'util'
+
+import S3 = require('aws-sdk/clients/s3')
+import { celebrate, Joi, Segments } from 'celebrate'
 import { Router, Request, Response } from 'express'
 import { v4 as uuid } from 'uuid'
-import S3 = require('aws-sdk/clients/s3')
 
 const AWS_REGION = process.env.AWS_REGION as string
 const FILE_STORAGE_BUCKET_NAME = process.env.FILE_STORAGE_BUCKET_NAME as string
@@ -16,6 +18,46 @@ const s3 = new S3({
 const createMultipartUpload = promisify(s3.createMultipartUpload.bind(s3))
 const completeMultipartUpload = promisify(s3.completeMultipartUpload.bind(s3))
 const uploadPart = promisify(s3.getSignedUrl.bind(s3))
+
+// validators
+const presignedUrlValidator = celebrate({
+  [Segments.QUERY]: Joi.object({
+    mimeType: Joi.string().required()
+  })
+})
+
+const getMultipartUrlValidator = celebrate({
+  [Segments.QUERY]: Joi.object({
+    partNumber: Joi
+      .number()
+      .integer()
+      .min(1)
+      .max(10000)
+      .required(),
+    s3Key: Joi.string().required(),
+    uploadId: Joi.string().required(),
+  })
+})
+
+const completeMultipartUploadValidator = celebrate({
+  [Segments.BODY]: Joi.object({
+    params: Joi.object({
+      parts: Joi
+        .array()
+        .items(Joi.object({
+          ETag: Joi.string().required(),
+          PartNumber: Joi
+            .number()
+            .integer()
+            .min(1)
+            .max(10000)
+            .required(),
+        })),
+      s3Key: Joi.string().required(),
+      uploadId: Joi.string().required()
+    })
+  })
+})
 
 // here be handlers
 const presignedUrlHandler = async (req: Request, res: Response) => {
@@ -100,9 +142,9 @@ const getPresignedUrlHandler = async (req: Request, res: Response) => {
   }
 }
 
-router.get('/start', presignedUrlHandler)
-router.get('/get-multipart-url', getMultipartUrlHandler)
-router.post('/complete', completeMultipartUploadHandler)
+router.get('/start', presignedUrlValidator, presignedUrlHandler)
+router.get('/get-multipart-url', getMultipartUrlValidator, getMultipartUrlHandler)
+router.post('/complete', completeMultipartUploadValidator, completeMultipartUploadHandler)
 
 router.get('/presign-start', getPresignedUrlHandler)
 
