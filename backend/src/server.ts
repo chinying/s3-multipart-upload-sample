@@ -1,4 +1,5 @@
 import cors from 'cors'
+import { errors as celebrateErrorMiddleware } from 'celebrate'
 import bodyParser from 'body-parser'
 import express from 'express'
 require('dotenv').config()
@@ -15,6 +16,7 @@ const start = async (): Promise<void> => {
     'origin': FRONTEND_URL
   }))
   app.use('/upload/', UploadRoutes)
+  app.use(celebrateErrorMiddleware())
   app.listen(port, () => console.log(`Listening on port ${port}!`))
 }
 
