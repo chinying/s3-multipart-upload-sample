@@ -80,8 +80,30 @@ const completeMultipartUploadHandler = async (req: Request, res: Response) => {
   }
 }
 
+// non multipart
+const getPresignedUrlHandler = async (req: Request, res: Response) => {
+  try {
+    const s3Key = uuid()
+    const params = {
+      Bucket: FILE_STORAGE_BUCKET_NAME,
+      Key: s3Key,
+      ContentType: req.query.mimeType,
+      Expires: 180 // seconds
+    }
+
+    const presignedUrl = await s3.getSignedUrlPromise('putObject', params)
+    res.status(200).json({ presignedUrl })
+
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Unable to generate presigned URL' })
+  }
+}
+
 router.get('/start', presignedUrlHandler)
 router.get('/get-multipart-url', getMultipartUrlHandler)
 router.post('/complete', completeMultipartUploadHandler)
+
+router.get('/presign-start', getPresignedUrlHandler)
 
 export const UploadRoutes = router
