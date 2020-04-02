@@ -146,6 +146,6 @@ router.get('/start', presignedUrlValidator, presignedUrlHandler)
 router.get('/get-multipart-url', getMultipartUrlValidator, getMultipartUrlHandler)
 router.post('/complete', completeMultipartUploadValidator, completeMultipartUploadHandler)
 
-router.get('/presign-start', getPresignedUrlHandler)
+router.get('/presign-start', presignedUrlValidator, getPresignedUrlHandler)
 
 export const UploadRoutes = router
